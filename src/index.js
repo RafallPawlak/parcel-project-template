@@ -1,75 +1,77 @@
 
 import Pagination from 'tui-pagination';
 import 'tui-pagination/dist/tui-pagination.css';
+import { fetchTrending } from './js/fetchApi';
+import { render } from './js/renderCard';
 
-const API_KEY_V3 = "bdba5342660bdd1dac5d09b885091a0c";
-const API_KEY_V4 = "";
-const API_URL = "https://api.themoviedb.org/3/";
 
-const filmsListHtml = document.querySelector(".movieadd");
 
-let tempImageUrl = "";
+    // .finally(() => {
+    //   searchForm.reset();
 
-fetchApi();
 
-async function fetchApi(){
-  try {
-    fetchApiConfig();
-    fetchApiTrending(1)
-        .then(film => {
+// const filmsListHtml = document.querySelector(".movieadd");
+
+// let tempImageUrl = "";
+
+// fetchApi();
+
+// async function fetchApi(){
+//   try {
+//     fetchApiConfig();
+//     fetchApiTrending(1)
+//         .then(film => {
     
-          const filmDetailsHtml = document.querySelectorAll(".film-details");
-          filmDetailsHtml.forEach(el => {
-        //  / fetchApiGetDetailsFilm(el)
-      })
-    })
-  } catch (error) {
-    console.log("fetchApi: ", error);
-  }
-};
+//           const filmDetailsHtml = document.querySelectorAll(".film-details");
+//           filmDetailsHtml.forEach(el => {
+//         //  / fetchApiGetDetailsFilm(el)
+//       })
+//     })
+//   } catch (error) {
+//     console.log("fetchApi: ", error);
+//   }
+// };
 
 
-async function fetchApiConfig(){
-  try {
-    const params = new URLSearchParams({
-      api_key: API_KEY_V3
-    });
-    const response = await fetch(API_URL + "configuration" + "?" + params);
-    const config = await response.json();
-    tempImageUrl = config.images.base_url + config.images.poster_sizes[3];
-  } catch (error) {
-    console.log("fetchApiConfig: ", error);
-  }
-};
+// async function fetchApiConfig(){
+//   try {
+//     const params = new URLSearchParams({
+//       api_key: API_KEY_V3
+//     });
+//     const response = await fetch(API_URL + "configuration" + "?" + params);
+//     const config = await response.json();
+//     tempImageUrl = config.images.base_url + config.images.poster_sizes[3];
+//   } catch (error) {
+//     console.log("fetchApiConfig: ", error);
+//   }
+// };
 
 
-async function fetchApiTrending(page){
-  try {
-    const params = new URLSearchParams({
-      api_key: API_KEY_V3,
-      page: page,
-    });
-    const response = await fetch(API_URL + "trending/" + "movie/" + "day" + "?" + params);
-    const film = await response.json();
-    let imageLink = tempImageUrl + film.results[0].poster_path;
-    let filmItems = "";
-    film.results.forEach(result => {
-      filmItems+=`
-      <li class="film-item">
-        <img class="film-image" src="${tempImageUrl}${result.poster_path}"></img>
-        <p class="film-title">${result.title}</p>
-        <p class="film-details" data-film_id="${result.id}"></p>
-      </li>
-      `
-    });
-      filmsListHtml.innerHTML = filmItems;
-    return film
-  } catch (error) {
-    console.log("fetchApiTrending: ", error);
-  }
-};
-
-
+// async function fetchApiTrending(page){
+//   try {
+//     const params = new URLSearchParams({
+//       api_key: API_KEY_V3,
+//       page: page,
+//     });
+//     const response = await fetch(API_URL + "trending/" + "movie/" + "day" + "?" + params);
+//     const film = await response.json();
+//     let imageLink = tempImageUrl + film.results[0].poster_path;
+//     let filmItems = "";
+//     film.results.forEach(result => {
+//       filmItems+=`
+//       <li class="film-item">
+//         <img class="film-image" src="${tempImageUrl}${result.poster_path}"></img>
+//         <p class="film-title">${result.title}</p>
+//         <p class="film-details" data-film_id="${result.id}"></p>
+//       </li>
+//       `
+//     });
+//       filmsListHtml.innerHTML = filmItems;
+//     return film
+//   } catch (error) {
+//     console.log("fetchApiTrending: ", error);
+//   }
+// };
 
 const container = document.getElementById('pagination');
 const options = { // below default value of options
@@ -101,7 +103,11 @@ const pagination = new Pagination(container, options);
 
 pagination.on('afterMove', (event) => {
   const currentPage = event.page;
-  console.log(currentPage);
-  fetchApiTrending(currentPage);
+ fetchTrending(currentPage)
+  .then(({ data } ) => {
+   console.log(data);
+    render(data.results);
+   
+    })
+    .catch(error => console.log(error))
 });
-
